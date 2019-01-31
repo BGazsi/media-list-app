@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Media List Application</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" href="public/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,700" rel="stylesheet">
+</head>
+<body>
+
+<header class="header">
+    <div class="row header-inner">
+        <div class="logo col">
+            <b>M</b>edia <b>L</b>ist <b>A</b>pplication
+        </div>
+        <b class="logo col mobile-logo">MLA</b>
+        <nav class="col header-navigation">
+            <button class="btn btn-black header-btn" data-ref="my-videos">
+                <svg focusable="false" style="pointer-events: none; display: block; width: 28px; height: 22px;">
+                    <path stroke="red" fill="white" d="M12 3.67c-4.58 0-8.33 3.75-8.33 8.33s3.75 8.33 8.33 8.33 8.33-3.75 8.33-8.33S16.58 3.67 12 3.67zm3.5 11.83l-4.33-2.67v-5h1.25v4.34l3.75 2.25-.67 1.08z"></path>
+                </svg>
+                <span class="header-btn-text">
+                    My "Watch it later" videos
+                </span>
+            </button>
+            <button class="btn btn-black header-btn" data-ref="settings-button">
+                <svg focusable="false" style="pointer-events: none; display: block; width: 28px; height: 22px;">
+                    <path stroke="white" fill="white" d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.1-1.65c.2-.15.25-.42.13-.64l-2-3.46c-.12-.22-.4-.3-.6-.22l-2.5 1c-.52-.4-1.08-.73-1.7-.98l-.37-2.65c-.06-.24-.27-.42-.5-.42h-4c-.27 0-.48.18-.5.42l-.4 2.65c-.6.25-1.17.6-1.7.98l-2.48-1c-.23-.1-.5 0-.6.22l-2 3.46c-.14.22-.08.5.1.64l2.12 1.65c-.04.32-.07.65-.07.98s.02.66.06.98l-2.1 1.65c-.2.15-.25.42-.13.64l2 3.46c.12.22.4.3.6.22l2.5-1c.52.4 1.08.73 1.7.98l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.6-.25 1.17-.6 1.7-.98l2.48 1c.23.1.5 0 .6-.22l2-3.46c.13-.22.08-.5-.1-.64l-2.12-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"></path>
+                </svg>
+                <span class="header-btn-text">
+                    Settings
+                </span>
+            </button>
+        </nav>
+    </div>
+</header>
+<main class="container">
+    <form data-ref="filter-form" class="filter-form">
+        <label for="filter" class="label">Filter:</label>
+        <div class="custom-select">
+            <select name="filter" id="filter" data-ref="filter-select">
+                <option value="all">All videos</option>
+                <option value="channel">Live only</option>
+                <option value="recorded">Recorded only</option>
+            </select>
+        </div>
+        <label for="sort" class="label">Sort:</label>
+        <div class="custom-select">
+            <select name="sort" id="sort" data-ref="sort-select">
+                <option value="title|1">Title &darr;</option>
+                <option value="title|-1">Title &uarr;</option>
+                <option value="description|1">Description &darr;</option>
+                <option value="description|-1">Description &uarr;</option>
+                <option value="viewers|1">Viewers &darr;</option>
+                <option value="viewers|-1">Viewers &uarr;</option>
+            </select>
+        </div>
+    </form>
+    <div class="row" data-ref="video-list">
+
+    </div>
+    <div class="settings-box hidden" data-ref="settings-box">
+        <form>
+            <label for="polling-interval">Polling interval:</label>
+            <input type="number" name="polling-interval" id="polling-interval" class="input" value="5000" min="1000" data-ref="polling-interval" required /> ms
+        </form>
+    </div>
+</main>
+
+<script src="public/dist/js/JsonP.js"></script>
+<script src="public/dist/js/VideoModel.js"></script>
+<script src="public/dist/js/VideoListView.js"></script>
+<script src="public/dist/js/VideoListController.js"></script>
+<script src="public/dist/js/index.js"></script>
+</body>
+</html>
