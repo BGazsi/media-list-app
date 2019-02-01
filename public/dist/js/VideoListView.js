@@ -18,13 +18,21 @@
   });
   _exports.default = VideoListView;
 
-  function VideoListView() {
-    this.videoList = document.querySelector('[data-ref~="video-list"]');
+  function VideoListView(options) {
+    var _this = this;
+
+    this.videoList = options.elements.videoList;
+    this.myVideosBtnText = options.elements.myVideosBtnText;
+    this.sortSelect = options.elements.sortSelect;
+    this.filterSelect = options.elements.filterSelect;
+    this.settingsBox = options.elements.settingsBox;
     this.query = {
       sort: {
         dir: 1,
         prop: 'title'
-      }
+      },
+      filter: 'all',
+      isOnlyMyVideos: false
     };
 
     this.getVideoCardTemplate = function (video) {
@@ -33,36 +41,33 @@
       return "<div class=\"img-container\">\n                <div class=\"live ".concat(video.type, "\">live</div>\n                <img class=\"thumb-img\" src=\"").concat(video.picture, "\" alt=\"").concat(video.title, "\" data-ref=\"picture\">\n            </div>\n            <h3 data-ref=\"title\">").concat(video.title, "</h3>\n            <article data-ref=\"description\">").concat(video.description, "</article>\n            <p class=\"viewers\">Viewers: <strong data-ref=\"viewers\">").concat(video.viewers, "</strong></p>\n            <button class=\"btn btn-default btn-block add-btn ").concat(active, "\" data-ref=\"add-to-list\">").concat(btnText, "</button>");
     };
 
-    this.createVideoCard = function (video, isOnlyMyVideos) {
+    this.createVideoCard = function (video) {
       var newElement = document.createElement('div');
       newElement.classList.add('col', 'video-card');
-      newElement.classList.toggle('hidden', isOnlyMyVideos && !video.isOnList);
       newElement.setAttribute('data-video-id', video.id);
       newElement.setAttribute('data-ref', 'video-card');
-      newElement.innerHTML = this.getVideoCardTemplate(video);
+      newElement.innerHTML = _this.getVideoCardTemplate(video);
       return newElement;
     };
 
     this.addVideoCard = function (card) {
-      this.videoList.appendChild(card);
+      _this.videoList.appendChild(card);
     };
 
-    this.renderList = function (videos, isOnlyMyVideos) {
-      var _this = this;
-
-      this.videoList.innerHTML = '';
+    this.renderList = function (videos) {
+      _this.videoList.innerHTML = '';
       videos.forEach(function (video) {
-        _this.addVideoCard(_this.createVideoCard(video, isOnlyMyVideos));
+        _this.addVideoCard(_this.createVideoCard(video));
       });
     };
 
     this.getQuery = function () {
-      return this.query;
+      return _this.query;
     };
 
-    this.updateQuery = function (filterForm) {
-      this.query.sort = this.createSortQuery(filterForm.querySelector('[data-ref~="sort-select"]'));
-      this.query.filter = this.createFilterQuery(filterForm.querySelector('[data-ref~="filter-select"]'));
+    this.updateQuery = function () {
+      _this.query.sort = _this.createSortQuery(_this.sortSelect);
+      _this.query.filter = _this.filterSelect.value;
     };
 
     this.createSortQuery = function (select) {
@@ -72,10 +77,6 @@
       };
     };
 
-    this.createFilterQuery = function (select) {
-      return select.value === 'all' ? undefined : select.value;
-    };
-
     this.toggleList = function (e, myVideos) {
       var btn = e.target;
       var videoId = btn.closest('[data-video-id]').getAttribute('data-video-id');
@@ -83,34 +84,13 @@
       btn.innerHTML = ~myVideos.indexOf(videoId) ? 'Remove from watch it later' : 'Add to watch it later';
     };
 
-    this.toggleMyVideos = function (myVideos, isOnlyMyVideos) {
-      if (isOnlyMyVideos) {
-        this.showAllVideos();
-        document.querySelector('[data-ref~="my-videos"] .header-btn-text').innerHTML = 'My "Watch it later" videos';
-      } else {
-        this.showOnlyMyVideos(myVideos);
-        document.querySelector('[data-ref~="my-videos"] .header-btn-text').innerHTML = 'Show all videos';
-      }
-    };
-
-    this.showAllVideos = function () {
-      document.querySelectorAll('[data-video-id]').forEach(function (videoCard) {
-        videoCard.classList.remove('hidden');
-      });
-    };
-
-    this.showOnlyMyVideos = function (myVideos) {
-      document.querySelectorAll('[data-video-id]').forEach(function (videoCard) {
-        videoCard.classList.add('hidden');
-
-        if (~myVideos.indexOf(videoCard.getAttribute('data-video-id'))) {
-          videoCard.classList.remove('hidden');
-        }
-      });
+    this.toggleMyVideos = function () {
+      _this.query.isOnlyMyVideos = !_this.query.isOnlyMyVideos;
+      _this.myVideosBtnText.innerHTML = _this.query.isOnlyMyVideos ? 'Show all videos' : 'My "Watch it later" videos';
     };
 
     this.toggleSettings = function () {
-      document.querySelector('[data-ref~="settings-box"]').classList.toggle('hidden');
+      _this.settingsBox.classList.toggle('hidden');
     };
   }
 });

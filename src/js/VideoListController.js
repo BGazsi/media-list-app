@@ -1,65 +1,74 @@
-import VideoModel from './VideoModel.js'
-import VideoListView from './VideoListView.js'
-
-export default function VideoListController () {
-  this.videoModel = new VideoModel()
-  this.videoListView = new VideoListView()
-  this.videoList = document.querySelector('[data-ref~="video-list"]')
-  this.filterForm = document.querySelector('[data-ref~="filter-form"]')
+export default function VideoListController (model, view, options) {
+  this.videoModel = model
+  this.videoListView = view
+  this.videoList = options.elements.videoList
+  this.filterForm = options.elements.filterForm
+  this.myVideosButton = options.elements.myVideosButton
+  this.settingsButton = options.elements.settingsButton
+  this.pollingIntervalInput = options.elements.pollingIntervalInput
+  this.pollInterval = this.pollingIntervalInput.value
   this.pollTimerId = false
-  this.pollInterval = document.querySelector('[data-ref~="polling-interval"]').value
 
-  this.init = function () {
-    this.videoModel.getVideos(this.videoListView.getQuery())
+  this.init = () => {
+    this.getVideos()
     this.attachEventListeners()
     // this.startPolling()
   }
 
-  this.attachEventListeners = function () {
+  this.attachEventListeners = () => {
+    this.videoList.addEventListener('apiResponseArrived', this.handleApiResponse)
+    this.filterForm.addEventListener('change', this.handleFilterFormChange)
+    this.myVideosButton.addEventListener('click', this.toggleMyVideos)
+    this.settingsButton.addEventListener('click', this.toggleSettings)
+    this.pollingIntervalInput.addEventListener('input', this.handlePollingIntervalInput)
+    this.pollingIntervalInput.addEventListener('blur', this.handlePollingIntervalSave)
+  }
 
-    this.videoList.addEventListener('apiResponseArrived', (e) => {
-      this.videoListView.renderList(e.detail, this.videoModel.isOnlyMyVideos)
-
-      document.querySelectorAll('[data-ref~="add-to-list"]').forEach((btn) => {
-        btn.addEventListener('click', (e) => {
-          this.videoModel.toggleList(e)
-          this.videoListView.toggleList(e, this.videoModel.getMyVideosList())
-        } )
-      })
-    })
-
-    this.filterForm.addEventListener('change', () => {
-      this.videoListView.updateQuery(this.filterForm)
-      this.videoModel.getVideos(this.videoListView.getQuery())
-    })
-
-    document.querySelector('[data-ref~="my-videos"]').addEventListener('click', () => {
-      this.videoListView.toggleMyVideos(this.videoModel.getMyVideosList(), this.videoModel.isOnlyMyVideos)
-      this.videoModel.toggleMyVideos()
-    })
-
-    document.querySelector('[data-ref~="settings-button"]').addEventListener('click', () => {
-      this.videoListView.toggleSettings()
-    })
-
-    let pollingIntervalInput = document.querySelector('[data-ref~="polling-interval"]')
-    pollingIntervalInput.addEventListener('input', () => {
-      this.videoModel.validateSettings()
-    })
-    pollingIntervalInput.addEventListener('blur', () => {
-      if (this.videoModel.validateSettings()) {
-        this.pollInterval = pollingIntervalInput.value
-        this.startPolling()
-      }
+  this.handleApiResponse = (e) => {
+    this.videoListView.renderList(e.detail)
+    document.querySelectorAll('[data-ref~="add-to-list"]').forEach((btn) => {
+      btn.addEventListener('click', this.toggleVideoOnList)
     })
   }
 
-  this.startPolling = function () {
+  this.handleFilterFormChange = () => {
+    this.videoListView.updateQuery()
+    this.videoModel.getVideos(this.videoListView.getQuery())
+  }
+
+  this.toggleMyVideos = () => {
+    this.videoListView.toggleMyVideos()
+    this.videoModel.provideVideos(this.videoListView.query)
+  }
+
+  this.toggleSettings = () => {
+    this.videoListView.toggleSettings()
+  }
+
+  this.handlePollingIntervalInput = () => {
+    this.videoModel.validateSettings()
+  }
+
+  this.handlePollingIntervalSave = () => {
+    if (this.videoModel.validateSettings()) {
+      this.pollInterval = this.pollingIntervalInput.value
+      this.startPolling()
+    }
+  }
+
+  this.toggleVideoOnList = (e) => {
+    this.videoModel.toggleList(e)
+    this.videoListView.toggleList(e, this.videoModel.getMyVideosList())
+  }
+
+  this.startPolling = () => {
     if (this.pollTimerId) {
       window.clearTimeout(this.pollTimerId)
     }
-    this.pollTimerId = setInterval(() => {
-      this.videoModel.getVideos(this.videoListView.getQuery())
-    }, this.pollInterval)
+    this.pollTimerId = setInterval(this.getVideos, this.pollInterval)
+  }
+
+  this.getVideos = () => {
+    this.videoModel.getVideos(this.videoListView.getQuery())
   }
 }

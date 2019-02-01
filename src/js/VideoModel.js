@@ -1,68 +1,70 @@
-import JsonP from './JsonP.js'
-
-export default function VideoModel () {
-  this.videoList = document.querySelector('[data-ref~="video-list"]')
+export default function VideoModel (apiCaller, options) {
+  this.videoList = options.elements.videoList
+  this.storage = options.storage
   this.videos = []
   this.isOnlyMyVideos = false
-  this.jsonP = new JsonP()
-  window.localStorage.setItem('video-list', window.localStorage.getItem('video-list') || JSON.stringify([]))
+  this.placeholderPicture = options.placeholderPicture
+  this.apiCaller = apiCaller
+  this.storage.setItem('video-list', this.storage.getItem('video-list') || JSON.stringify([]))
 
-  this.getVideos = function (query) {
-    this.jsonP.send('http://146.185.158.18/fake_api.php', {
-      callbackName: 'jsonp',
-      successCallback: (json) => {
-        this.videos = this.normalizeVideos(json)
-        this.videos = this.handleRequestReady(query)
-        this.videoList.dispatchEvent(new CustomEvent('apiResponseArrived', {detail: this.videos}))
+  this.getVideos = (query) => {
+    this.apiCaller(query,
+      (json) => {
+        this.provideVideos(query, json)
       },
-      timeoutCallback: () => {
+      () => {
         console.error('timeout')
         setTimeout(() => {
           this.getVideos(query)
         }, 3000)
-      },
-      timeout: 3000
-    })
+      }
+    )
   }
 
-  this.handleRequestReady = function (query) {
-    return this.getFilteredVideos(query.filter).sort((video1, video2) => {
+  this.provideVideos = (query, json = this.videos) => {
+    this.videos = this.normalizeVideos(json)
+    this.videoList.dispatchEvent(new CustomEvent('apiResponseArrived', {detail: this.handleRequestReady(query)}))
+  }
+
+  this.handleRequestReady = (query) => {
+    return this.getFilteredVideos(query.filter, query.isOnlyMyVideos).sort((video1, video2) => {
       return video1[query.sort.prop] > video2[query.sort.prop] ? query.sort.dir : -query.sort.dir
     })
   }
 
-  this.getFilteredVideos = function (filter) {
-    if (!filter) {
+  this.getFilteredVideos = (filter, isOnlyMyVideos) => {
+    if (filter === 'all' && !isOnlyMyVideos) {
       return this.videos
     }
     return this.videos.filter((video) => {
-      return video.type === filter
+      return (video.type === filter || filter === 'all') && (!isOnlyMyVideos || video.isOnList)
     })
   }
 
-  this.normalizeVideos = function (videos) {
+  this.normalizeVideos = (videos) => {
     return videos.map((video) => {
       return Object.assign({}, {
         title: 'No title defined',
         description: '',
-        picture: 'http://placehold.it/300x300',
-        viewers: 0,
+        picture: this.placeholderPicture,
+        viewers: 0
+      }, video, {
         isOnList: ~this.getMyVideosList().indexOf('' + video.id)
-      }, video)
+      })
     })
   }
 
-  this.getMyVideosList = function () {
+  this.getMyVideosList = () => {
     let actualStore = []
     try {
-      actualStore = JSON.parse(window.localStorage.getItem('video-list'))
+      actualStore = JSON.parse(this.storage.getItem('video-list'))
     } catch (ex) {
       console.warn('Video list was corrupted, added videos were forgotten.')
     }
     return actualStore
   }
 
-  this.toggleList = function (e) {
+  this.toggleList = (e) => {
     let videoId = e.target.closest('[data-video-id]').getAttribute('data-video-id')
     let actualStore = this.getMyVideosList()
     if (!~actualStore.indexOf(videoId)) {
@@ -70,14 +72,14 @@ export default function VideoModel () {
     } else {
       actualStore.splice(actualStore.indexOf(videoId), 1)
     }
-    window.localStorage.setItem('video-list', JSON.stringify(actualStore))
+    this.storage.setItem('video-list', JSON.stringify(actualStore))
   }
 
-  this.toggleMyVideos = function () {
+  this.toggleMyVideos = () => {
     this.isOnlyMyVideos = !this.isOnlyMyVideos
   }
 
-  this.validateSettings = function () {
+  this.validateSettings = () => {
     let input = document.querySelector('[data-ref~="polling-interval"]')
     if (input.checkValidity()) {
       return true

@@ -1,83 +1,80 @@
 (function (global, factory) {
   if (typeof define === "function" && define.amd) {
-    define(["exports", "./JsonP.js"], factory);
+    define(["exports"], factory);
   } else if (typeof exports !== "undefined") {
-    factory(exports, require("./JsonP.js"));
+    factory(exports);
   } else {
     var mod = {
       exports: {}
     };
-    factory(mod.exports, global.JsonP);
+    factory(mod.exports);
     global.VideoModel = mod.exports;
   }
-})(this, function (_exports, _JsonP) {
+})(this, function (_exports) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
     value: true
   });
   _exports.default = VideoModel;
-  _JsonP = _interopRequireDefault(_JsonP);
 
-  function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+  function VideoModel(apiCaller, options) {
+    var _this = this;
 
-  function VideoModel() {
-    this.videoList = document.querySelector('[data-ref~="video-list"]');
+    this.videoList = options.elements.videoList;
+    this.storage = options.storage;
     this.videos = [];
     this.isOnlyMyVideos = false;
-    this.jsonP = new _JsonP.default();
-    window.localStorage.setItem('video-list', window.localStorage.getItem('video-list') || JSON.stringify([]));
+    this.placeholderPicture = options.placeholderPicture;
+    this.apiCaller = apiCaller;
+    this.storage.setItem('video-list', this.storage.getItem('video-list') || JSON.stringify([]));
 
     this.getVideos = function (query) {
-      var _this = this;
-
-      this.jsonP.send('http://146.185.158.18/fake_api.php', {
-        callbackName: 'jsonp',
-        successCallback: function successCallback(json) {
-          _this.videos = _this.normalizeVideos(json);
-          _this.videos = _this.handleRequestReady(query);
-
-          _this.videoList.dispatchEvent(new CustomEvent('apiResponseArrived', {
-            detail: _this.videos
-          }));
-        },
-        timeoutCallback: function timeoutCallback() {
-          console.error('timeout');
-          setTimeout(function () {
-            _this.getVideos(query);
-          }, 3000);
-        },
-        timeout: 3000
+      _this.apiCaller(query, function (json) {
+        _this.provideVideos(query, json);
+      }, function () {
+        console.error('timeout');
+        setTimeout(function () {
+          _this.getVideos(query);
+        }, 3000);
       });
     };
 
+    this.provideVideos = function (query) {
+      var json = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _this.videos;
+      _this.videos = _this.normalizeVideos(json);
+
+      _this.videoList.dispatchEvent(new CustomEvent('apiResponseArrived', {
+        detail: _this.handleRequestReady(query)
+      }));
+    };
+
     this.handleRequestReady = function (query) {
-      return this.getFilteredVideos(query.filter).sort(function (video1, video2) {
+      return _this.getFilteredVideos(query.filter, query.isOnlyMyVideos).sort(function (video1, video2) {
         return video1[query.sort.prop] > video2[query.sort.prop] ? query.sort.dir : -query.sort.dir;
       });
     };
 
-    this.getFilteredVideos = function (filter) {
-      if (!filter) {
-        return this.videos;
+    this.getFilteredVideos = function (filter, isOnlyMyVideos) {
+      if (filter === 'all' && !isOnlyMyVideos) {
+        return _this.videos;
       }
 
-      return this.videos.filter(function (video) {
-        return video.type === filter;
+      return _this.videos.filter(function (video) {
+        return (video.type === filter || filter === 'all') && (!isOnlyMyVideos || video.isOnList);
       });
     };
 
     this.normalizeVideos = function (videos) {
-      var _this2 = this;
-
       return videos.map(function (video) {
         return Object.assign({}, {
           title: 'No title defined',
           description: '',
-          picture: 'http://placehold.it/300x300',
-          viewers: 0,
-          isOnList: ~_this2.getMyVideosList().indexOf('' + video.id)
-        }, video);
+          picture: _this.placeholderPicture,
+          viewers: 0
+        }, video, {
+          isOnList: ~_this.getMyVideosList().indexOf('' + video.id)
+        });
       });
     };
 
@@ -85,7 +82,7 @@
       var actualStore = [];
 
       try {
-        actualStore = JSON.parse(window.localStorage.getItem('video-list'));
+        actualStore = JSON.parse(_this.storage.getItem('video-list'));
       } catch (ex) {
         console.warn('Video list was corrupted, added videos were forgotten.');
       }
@@ -95,7 +92,8 @@
 
     this.toggleList = function (e) {
       var videoId = e.target.closest('[data-video-id]').getAttribute('data-video-id');
-      var actualStore = this.getMyVideosList();
+
+      var actualStore = _this.getMyVideosList();
 
       if (!~actualStore.indexOf(videoId)) {
         actualStore.push(videoId);
@@ -103,11 +101,11 @@
         actualStore.splice(actualStore.indexOf(videoId), 1);
       }
 
-      window.localStorage.setItem('video-list', JSON.stringify(actualStore));
+      _this.storage.setItem('video-list', JSON.stringify(actualStore));
     };
 
     this.toggleMyVideos = function () {
-      this.isOnlyMyVideos = !this.isOnlyMyVideos;
+      _this.isOnlyMyVideos = !_this.isOnlyMyVideos;
     };
 
     this.validateSettings = function () {

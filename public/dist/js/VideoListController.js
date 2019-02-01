@@ -1,90 +1,109 @@
 (function (global, factory) {
   if (typeof define === "function" && define.amd) {
-    define(["exports", "./VideoModel.js", "./VideoListView.js"], factory);
+    define(["exports"], factory);
   } else if (typeof exports !== "undefined") {
-    factory(exports, require("./VideoModel.js"), require("./VideoListView.js"));
+    factory(exports);
   } else {
     var mod = {
       exports: {}
     };
-    factory(mod.exports, global.VideoModel, global.VideoListView);
+    factory(mod.exports);
     global.VideoListController = mod.exports;
   }
-})(this, function (_exports, _VideoModel, _VideoListView) {
+})(this, function (_exports) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
     value: true
   });
   _exports.default = VideoListController;
-  _VideoModel = _interopRequireDefault(_VideoModel);
-  _VideoListView = _interopRequireDefault(_VideoListView);
 
-  function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+  function VideoListController(model, view, options) {
+    var _this = this;
 
-  function VideoListController() {
-    this.videoModel = new _VideoModel.default();
-    this.videoListView = new _VideoListView.default();
-    this.videoList = document.querySelector('[data-ref~="video-list"]');
-    this.filterForm = document.querySelector('[data-ref~="filter-form"]');
+    this.videoModel = model;
+    this.videoListView = view;
+    this.videoList = options.elements.videoList;
+    this.filterForm = options.elements.filterForm;
+    this.myVideosButton = options.elements.myVideosButton;
+    this.settingsButton = options.elements.settingsButton;
+    this.pollingIntervalInput = options.elements.pollingIntervalInput;
+    this.pollInterval = this.pollingIntervalInput.value;
     this.pollTimerId = false;
-    this.pollInterval = document.querySelector('[data-ref~="polling-interval"]').value;
 
     this.init = function () {
-      this.videoModel.getVideos(this.videoListView.getQuery());
-      this.attachEventListeners(); // this.startPolling()
+      _this.getVideos();
+
+      _this.attachEventListeners(); // this.startPolling()
+
     };
 
     this.attachEventListeners = function () {
-      var _this = this;
+      _this.videoList.addEventListener('apiResponseArrived', _this.handleApiResponse);
 
-      this.videoList.addEventListener('apiResponseArrived', function (e) {
-        _this.videoListView.renderList(e.detail, _this.videoModel.isOnlyMyVideos);
+      _this.filterForm.addEventListener('change', _this.handleFilterFormChange);
 
-        document.querySelectorAll('[data-ref~="add-to-list"]').forEach(function (btn) {
-          btn.addEventListener('click', function (e) {
-            _this.videoModel.toggleList(e);
+      _this.myVideosButton.addEventListener('click', _this.toggleMyVideos);
 
-            _this.videoListView.toggleList(e, _this.videoModel.getMyVideosList());
-          });
-        });
-      });
-      this.filterForm.addEventListener('change', function () {
-        _this.videoListView.updateQuery(_this.filterForm);
+      _this.settingsButton.addEventListener('click', _this.toggleSettings);
 
-        _this.videoModel.getVideos(_this.videoListView.getQuery());
-      });
-      document.querySelector('[data-ref~="my-videos"]').addEventListener('click', function () {
-        _this.videoListView.toggleMyVideos(_this.videoModel.getMyVideosList(), _this.videoModel.isOnlyMyVideos);
+      _this.pollingIntervalInput.addEventListener('input', _this.handlePollingIntervalInput);
 
-        _this.videoModel.toggleMyVideos();
-      });
-      document.querySelector('[data-ref~="settings-button"]').addEventListener('click', function () {
-        _this.videoListView.toggleSettings();
-      });
-      var pollingIntervalInput = document.querySelector('[data-ref~="polling-interval"]');
-      pollingIntervalInput.addEventListener('input', function () {
-        _this.videoModel.validateSettings();
-      });
-      pollingIntervalInput.addEventListener('blur', function () {
-        if (_this.videoModel.validateSettings()) {
-          _this.pollInterval = pollingIntervalInput.value;
+      _this.pollingIntervalInput.addEventListener('blur', _this.handlePollingIntervalSave);
+    };
 
-          _this.startPolling();
-        }
+    this.handleApiResponse = function (e) {
+      _this.videoListView.renderList(e.detail);
+
+      document.querySelectorAll('[data-ref~="add-to-list"]').forEach(function (btn) {
+        btn.addEventListener('click', _this.toggleVideoOnList);
       });
     };
 
-    this.startPolling = function () {
-      var _this2 = this;
+    this.handleFilterFormChange = function () {
+      _this.videoListView.updateQuery();
 
-      if (this.pollTimerId) {
-        window.clearTimeout(this.pollTimerId);
+      _this.videoModel.getVideos(_this.videoListView.getQuery());
+    };
+
+    this.toggleMyVideos = function () {
+      _this.videoListView.toggleMyVideos();
+
+      _this.videoModel.provideVideos(_this.videoListView.query);
+    };
+
+    this.toggleSettings = function () {
+      _this.videoListView.toggleSettings();
+    };
+
+    this.handlePollingIntervalInput = function () {
+      _this.videoModel.validateSettings();
+    };
+
+    this.handlePollingIntervalSave = function () {
+      if (_this.videoModel.validateSettings()) {
+        _this.pollInterval = _this.pollingIntervalInput.value;
+
+        _this.startPolling();
+      }
+    };
+
+    this.toggleVideoOnList = function (e) {
+      _this.videoModel.toggleList(e);
+
+      _this.videoListView.toggleList(e, _this.videoModel.getMyVideosList());
+    };
+
+    this.startPolling = function () {
+      if (_this.pollTimerId) {
+        window.clearTimeout(_this.pollTimerId);
       }
 
-      this.pollTimerId = setInterval(function () {
-        _this2.videoModel.getVideos(_this2.videoListView.getQuery());
-      }, this.pollInterval);
+      _this.pollTimerId = setInterval(_this.getVideos, _this.pollInterval);
+    };
+
+    this.getVideos = function () {
+      _this.videoModel.getVideos(_this.videoListView.getQuery());
     };
   }
 });

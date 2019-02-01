@@ -19,10 +19,10 @@
   _exports.default = JsonP;
 
   function JsonP() {
-    this.send = function (src, options) {
-      var _this = this;
+    var _this = this;
 
-      this.cleanUp();
+    this.send = function (src, options) {
+      _this.cleanUp();
 
       var jsonpCallbackName = options.callbackName || 'jsonp',
           successCallback = options.successCallback || function () {},
@@ -54,8 +54,10 @@
     };
 
     this.cleanUp = function () {
-      if (!!document.querySelector('[data-ref~="jsonp-script"]')) {
-        document.querySelector('[data-ref~="jsonp-script"]').remove();
+      var prevScript = document.querySelector('[data-ref~="jsonp-script"]');
+
+      if (!!prevScript) {
+        prevScript.remove();
       }
     };
   }

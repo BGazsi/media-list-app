@@ -1,5 +1,5 @@
 export default function JsonP () {
-  this.send = function (src, options) {
+  this.send = (src, options) => {
     this.cleanUp()
     const jsonpCallbackName = options.callbackName || 'jsonp',
       successCallback = options.successCallback || function () {},
@@ -27,9 +27,10 @@ export default function JsonP () {
     document.getElementsByTagName('head')[0].appendChild(script)
   }
 
-  this.cleanUp = function () {
-    if (!!document.querySelector('[data-ref~="jsonp-script"]')) {
-      document.querySelector('[data-ref~="jsonp-script"]').remove()
+  this.cleanUp = () => {
+    let prevScript = document.querySelector('[data-ref~="jsonp-script"]')
+    if (!!prevScript) {
+      prevScript.remove()
     }
   }
 }

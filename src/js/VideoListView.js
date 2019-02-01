@@ -1,13 +1,19 @@
-export default function VideoListView () {
-  this.videoList = document.querySelector('[data-ref~="video-list"]')
+export default function VideoListView (options) {
+  this.videoList = options.elements.videoList
+  this.myVideosBtnText = options.elements.myVideosBtnText
+  this.sortSelect = options.elements.sortSelect
+  this.filterSelect = options.elements.filterSelect
+  this.settingsBox = options.elements.settingsBox
   this.query = {
     sort: {
       dir: 1,
       prop: 'title'
-    }
+    },
+    filter: 'all',
+    isOnlyMyVideos : false
   }
 
-  this.getVideoCardTemplate = function (video) {
+  this.getVideoCardTemplate = (video) => {
     let btnText = !video.isOnList ? 'Add to watch it later' : 'Remove from watch it later'
     let active = video.isOnList ? 'active' : ''
     return `<div class="img-container">
@@ -20,80 +26,55 @@ export default function VideoListView () {
             <button class="btn btn-default btn-block add-btn ${active}" data-ref="add-to-list">${btnText}</button>`
   }
 
-  this.createVideoCard = function (video, isOnlyMyVideos) {
+  this.createVideoCard = (video) => {
     let newElement = document.createElement('div')
     newElement.classList.add('col', 'video-card')
-    newElement.classList.toggle('hidden', isOnlyMyVideos && !video.isOnList)
     newElement.setAttribute('data-video-id', video.id)
     newElement.setAttribute('data-ref', 'video-card')
     newElement.innerHTML = this.getVideoCardTemplate(video)
     return newElement
   }
 
-  this.addVideoCard = function (card) {
+  this.addVideoCard = (card) => {
     this.videoList.appendChild(card)
   }
 
-  this.renderList = function (videos, isOnlyMyVideos) {
+  this.renderList = (videos) => {
     this.videoList.innerHTML = ''
     videos.forEach((video) => {
-      this.addVideoCard(this.createVideoCard(video, isOnlyMyVideos))
+      this.addVideoCard(this.createVideoCard(video))
     })
   }
 
-  this.getQuery = function () {
+  this.getQuery = () => {
     return this.query
   }
 
-  this.updateQuery = function (filterForm) {
-    this.query.sort = this.createSortQuery(filterForm.querySelector('[data-ref~="sort-select"]'))
-    this.query.filter = this.createFilterQuery(filterForm.querySelector('[data-ref~="filter-select"]'))
+  this.updateQuery = () => {
+    this.query.sort = this.createSortQuery(this.sortSelect)
+    this.query.filter = this.filterSelect.value
   }
 
-  this.createSortQuery = function (select) {
+  this.createSortQuery = (select) => {
     return {
       dir: select.value.split('|')[1],
       prop: select.value.split('|')[0]
     }
   }
 
-  this.createFilterQuery = function (select) {
-    return select.value === 'all' ? undefined : select.value
-  }
-
-  this.toggleList = function (e, myVideos) {
+  this.toggleList = (e, myVideos) => {
     let btn = e.target
     let videoId = btn.closest('[data-video-id]').getAttribute('data-video-id')
     btn.classList.toggle('active', ~myVideos.indexOf(videoId))
     btn.innerHTML = ~myVideos.indexOf(videoId) ? 'Remove from watch it later' : 'Add to watch it later'
   }
 
-  this.toggleMyVideos = function (myVideos, isOnlyMyVideos) {
-    if (isOnlyMyVideos) {
-      this.showAllVideos()
-      document.querySelector('[data-ref~="my-videos"] .header-btn-text').innerHTML = 'My "Watch it later" videos'
-    } else {
-      this.showOnlyMyVideos(myVideos)
-      document.querySelector('[data-ref~="my-videos"] .header-btn-text').innerHTML = 'Show all videos'
-    }
+  this.toggleMyVideos = () => {
+    this.query.isOnlyMyVideos = !this.query.isOnlyMyVideos
+    this.myVideosBtnText.innerHTML = this.query.isOnlyMyVideos ? 'Show all videos' : 'My "Watch it later" videos'
   }
 
-  this.showAllVideos = function () {
-    document.querySelectorAll('[data-video-id]').forEach((videoCard) => {
-      videoCard.classList.remove('hidden')
-    })
-  }
-
-  this.showOnlyMyVideos = function (myVideos) {
-    document.querySelectorAll('[data-video-id]').forEach((videoCard) => {
-      videoCard.classList.add('hidden')
-      if (~myVideos.indexOf(videoCard.getAttribute('data-video-id'))) {
-        videoCard.classList.remove('hidden')
-      }
-    })
-  }
-
-  this.toggleSettings = function () {
-    document.querySelector('[data-ref~="settings-box"]').classList.toggle('hidden')
+  this.toggleSettings = () => {
+    this.settingsBox.classList.toggle('hidden')
   }
 }
