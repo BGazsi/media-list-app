@@ -1,9 +1,10 @@
-export default function VideoListView (options) {
+export default function VideoListView (options, doc) {
   this.videoList = options.elements.videoList
   this.myVideosBtnText = options.elements.myVideosBtnText
   this.sortSelect = options.elements.sortSelect
   this.filterSelect = options.elements.filterSelect
   this.settingsBox = options.elements.settingsBox
+  doc = doc || document
   this.query = {
     sort: {
       dir: 1,
@@ -27,7 +28,7 @@ export default function VideoListView (options) {
   }
 
   this.createVideoCard = (video) => {
-    let newElement = document.createElement('div')
+    let newElement = doc.createElement('div')
     newElement.classList.add('col', 'video-card')
     newElement.setAttribute('data-video-id', video.id)
     newElement.setAttribute('data-ref', 'video-card')

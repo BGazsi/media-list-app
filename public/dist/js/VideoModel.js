@@ -18,7 +18,7 @@
   });
   _exports.default = VideoModel;
 
-  function VideoModel(apiCaller, options) {
+  function VideoModel(apiCaller, options, doc) {
     var _this = this;
 
     this.videoList = options.elements.videoList;
@@ -28,6 +28,7 @@
     this.placeholderPicture = options.placeholderPicture;
     this.apiCaller = apiCaller;
     this.storage.setItem('video-list', this.storage.getItem('video-list') || JSON.stringify([]));
+    doc = doc || document;
 
     this.getVideos = function (query) {
       _this.apiCaller(query, function (json) {
@@ -109,7 +110,7 @@
     };
 
     this.validateSettings = function () {
-      var input = document.querySelector('[data-ref~="polling-interval"]');
+      var input = doc.querySelector('[data-ref~="polling-interval"]');
 
       if (input.checkValidity()) {
         return true;

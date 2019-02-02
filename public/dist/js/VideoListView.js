@@ -18,7 +18,7 @@
   });
   _exports.default = VideoListView;
 
-  function VideoListView(options) {
+  function VideoListView(options, doc) {
     var _this = this;
 
     this.videoList = options.elements.videoList;
@@ -26,6 +26,7 @@
     this.sortSelect = options.elements.sortSelect;
     this.filterSelect = options.elements.filterSelect;
     this.settingsBox = options.elements.settingsBox;
+    doc = doc || document;
     this.query = {
       sort: {
         dir: 1,
@@ -42,7 +43,7 @@
     };
 
     this.createVideoCard = function (video) {
-      var newElement = document.createElement('div');
+      var newElement = doc.createElement('div');
       newElement.classList.add('col', 'video-card');
       newElement.setAttribute('data-video-id', video.id);
       newElement.setAttribute('data-ref', 'video-card');

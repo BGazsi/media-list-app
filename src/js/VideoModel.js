@@ -1,4 +1,4 @@
-export default function VideoModel (apiCaller, options) {
+export default function VideoModel (apiCaller, options, doc) {
   this.videoList = options.elements.videoList
   this.storage = options.storage
   this.videos = []
@@ -6,6 +6,7 @@ export default function VideoModel (apiCaller, options) {
   this.placeholderPicture = options.placeholderPicture
   this.apiCaller = apiCaller
   this.storage.setItem('video-list', this.storage.getItem('video-list') || JSON.stringify([]))
+  doc = doc || document
 
   this.getVideos = (query) => {
     this.apiCaller(query,
@@ -80,7 +81,7 @@ export default function VideoModel (apiCaller, options) {
   }
 
   this.validateSettings = () => {
-    let input = document.querySelector('[data-ref~="polling-interval"]')
+    let input = doc.querySelector('[data-ref~="polling-interval"]')
     if (input.checkValidity()) {
       return true
     }

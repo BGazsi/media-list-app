@@ -18,7 +18,7 @@
   });
   _exports.default = VideoListController;
 
-  function VideoListController(model, view, options) {
+  function VideoListController(model, view, options, doc, win) {
     var _this = this;
 
     this.videoModel = model;
@@ -29,13 +29,16 @@
     this.settingsButton = options.elements.settingsButton;
     this.pollingIntervalInput = options.elements.pollingIntervalInput;
     this.pollInterval = this.pollingIntervalInput.value;
-    this.pollTimerId = false;
+    this.pollTimerId = options.pollTimerId || false;
+    doc = doc || document;
+    win = win || window;
 
     this.init = function () {
       _this.getVideos();
 
-      _this.attachEventListeners(); // this.startPolling()
+      _this.attachEventListeners();
 
+      _this.startPolling();
     };
 
     this.attachEventListeners = function () {
@@ -55,7 +58,7 @@
     this.handleApiResponse = function (e) {
       _this.videoListView.renderList(e.detail);
 
-      document.querySelectorAll('[data-ref~="add-to-list"]').forEach(function (btn) {
+      doc.querySelectorAll('[data-ref~="add-to-list"]').forEach(function (btn) {
         btn.addEventListener('click', _this.toggleVideoOnList);
       });
     };
@@ -96,7 +99,7 @@
 
     this.startPolling = function () {
       if (_this.pollTimerId) {
-        window.clearTimeout(_this.pollTimerId);
+        win.clearTimeout(_this.pollTimerId);
       }
 
       _this.pollTimerId = setInterval(_this.getVideos, _this.pollInterval);

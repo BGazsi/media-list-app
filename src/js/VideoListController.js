@@ -1,4 +1,4 @@
-export default function VideoListController (model, view, options) {
+export default function VideoListController (model, view, options, doc, win) {
   this.videoModel = model
   this.videoListView = view
   this.videoList = options.elements.videoList
@@ -7,12 +7,14 @@ export default function VideoListController (model, view, options) {
   this.settingsButton = options.elements.settingsButton
   this.pollingIntervalInput = options.elements.pollingIntervalInput
   this.pollInterval = this.pollingIntervalInput.value
-  this.pollTimerId = false
+  this.pollTimerId = options.pollTimerId || false
+  doc = doc || document
+  win = win || window
 
   this.init = () => {
     this.getVideos()
     this.attachEventListeners()
-    // this.startPolling()
+    this.startPolling()
   }
 
   this.attachEventListeners = () => {
@@ -26,7 +28,7 @@ export default function VideoListController (model, view, options) {
 
   this.handleApiResponse = (e) => {
     this.videoListView.renderList(e.detail)
-    document.querySelectorAll('[data-ref~="add-to-list"]').forEach((btn) => {
+    doc.querySelectorAll('[data-ref~="add-to-list"]').forEach((btn) => {
       btn.addEventListener('click', this.toggleVideoOnList)
     })
   }
@@ -63,7 +65,7 @@ export default function VideoListController (model, view, options) {
 
   this.startPolling = () => {
     if (this.pollTimerId) {
-      window.clearTimeout(this.pollTimerId)
+      win.clearTimeout(this.pollTimerId)
     }
     this.pollTimerId = setInterval(this.getVideos, this.pollInterval)
   }
