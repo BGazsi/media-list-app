@@ -9,9 +9,18 @@ const assert = require('assert')
 const sinon = require('sinon')
 
 describe('VideoListController', () => {
+  let videoListController
+  let view
+  let model
+
+  beforeEach(() => {
+    view = new VideoListViewMock()
+    model = new VideoModelMock()
+    videoListController = new VideoListController(model, view, getControllerOptionsMock(), dom.createFakeDocument(), dom.createFakeWindow())
+  })
+
   describe('attachEventListeners', () => {
     let subscribedEvents
-    let videoListController
 
     beforeEach(() => {
       subscribedEvents = []
@@ -44,13 +53,10 @@ describe('VideoListController', () => {
     })
   })
   describe('handleApiResponse', () => {
-    let videoListController
     let subscribedEvents
-    let view
 
     beforeEach(() => {
       subscribedEvents = []
-      view = new VideoListViewMock()
       videoListController = new VideoListController({}, view, getControllerOptionsMock(subscribedEvents), dom.createFakeDocument(), dom.createFakeWindow())
     })
 
@@ -67,15 +73,6 @@ describe('VideoListController', () => {
   })
 
   describe('handleFilterFormChange', () => {
-    let videoListController
-    let view
-    let model
-
-    beforeEach(() => {
-      view = new VideoListViewMock()
-      model = new VideoModelMock()
-      videoListController = new VideoListController(model, view, getControllerOptionsMock(), dom.createFakeDocument(), dom.createFakeWindow())
-    })
     it('should call the view s updateQuery method', () => {
       let viewMock = sinon.mock(view)
       viewMock.expects('updateQuery').once()
@@ -97,15 +94,6 @@ describe('VideoListController', () => {
   })
 
   describe('toggleMyVideos', () => {
-    let videoListController
-    let view
-    let model
-
-    beforeEach(() => {
-      view = new VideoListViewMock()
-      model = new VideoModelMock()
-      videoListController = new VideoListController(model, view, getControllerOptionsMock(), dom.createFakeDocument(), dom.createFakeWindow())
-    })
     it('should call the view s toggleMyVideos method', () => {
       let viewMock = sinon.mock(view)
       viewMock.expects('toggleMyVideos').once()
@@ -121,13 +109,6 @@ describe('VideoListController', () => {
   })
 
   describe('toggleSettings', () => {
-    let videoListController
-    let view
-
-    beforeEach(() => {
-      view = new VideoListViewMock()
-      videoListController = new VideoListController({}, view, getControllerOptionsMock(), dom.createFakeDocument(), dom.createFakeWindow())
-    })
     it('should call the view s toggleSettings method', () => {
       let viewMock = sinon.mock(view)
       viewMock.expects('toggleSettings').once()
@@ -137,13 +118,6 @@ describe('VideoListController', () => {
   })
 
   describe('handlePollingIntervalInput', () => {
-    let videoListController
-    let model
-
-    beforeEach(() => {
-      model = new VideoModelMock()
-      videoListController = new VideoListController(model, {}, getControllerOptionsMock(), dom.createFakeDocument(), dom.createFakeWindow())
-    })
     it('should call the model s validateSettings method', () => {
       let modelMock = sinon.mock(model)
       modelMock.expects('validateSettings').once()
@@ -153,15 +127,6 @@ describe('VideoListController', () => {
   })
 
   describe('handlePollingIntervalSave', () => {
-    let videoListController
-    let model
-    let view
-
-    beforeEach(() => {
-      model = new VideoModelMock()
-      view = new VideoListViewMock()
-      videoListController = new VideoListController(model, view, getControllerOptionsMock(), dom.createFakeDocument(), dom.createFakeWindow())
-    })
     it('should call the model s validateSettings method', () => {
       let modelMock = sinon.mock(model)
       modelMock.expects('validateSettings').once()
@@ -194,15 +159,6 @@ describe('VideoListController', () => {
   })
 
   describe('toggleVideoOnList', () => {
-    let videoListController
-    let view
-    let model
-
-    beforeEach(() => {
-      view = new VideoListViewMock()
-      model = new VideoModelMock()
-      videoListController = new VideoListController(model, view, getControllerOptionsMock(), dom.createFakeDocument(), dom.createFakeWindow())
-    })
     it('should call the view s toggleList method', () => {
       let viewMock = sinon.mock(view)
       viewMock.expects('toggleList').once()
@@ -224,14 +180,9 @@ describe('VideoListController', () => {
   })
 
   describe('startPolling', () => {
-    let videoListController
-    let view
-    let model
     let win
 
     beforeEach(() => {
-      view = new VideoListViewMock()
-      model = new VideoModelMock()
       win = dom.createFakeWindow()
       videoListController = new VideoListController(model, view, getControllerOptionsMock(), dom.createFakeDocument(), win)
     })
@@ -255,15 +206,6 @@ describe('VideoListController', () => {
   })
 
   describe('getVideos', () => {
-    let videoListController
-    let view
-    let model
-
-    beforeEach(() => {
-      view = new VideoListViewMock()
-      model = new VideoModelMock()
-      videoListController = new VideoListController(model, view, getControllerOptionsMock(), dom.createFakeDocument(), dom.createFakeWindow())
-    })
     it('should call the model s getVideos method', () => {
       let modelMock = sinon.mock(model)
       modelMock.expects('getVideos').once()
