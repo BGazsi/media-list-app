@@ -36,9 +36,6 @@
         _this.provideVideos(query, json);
       }, function () {
         console.error('timeout');
-        setTimeout(function () {
-          _this.getVideos(query);
-        }, 3000);
       });
     };
 

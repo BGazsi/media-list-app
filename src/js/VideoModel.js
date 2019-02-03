@@ -16,9 +16,6 @@ export default function VideoModel (apiCaller, options, doc, custEv) {
       },
       () => {
         console.error('timeout')
-        setTimeout(() => {
-          this.getVideos(query)
-        }, 3000)
       }
     )
   }

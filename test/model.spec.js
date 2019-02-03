@@ -39,6 +39,20 @@ describe('VideoModel', () => {
     videoModel = new VideoModel(apiCaller, options, doc, customEvent)
   })
 
+  describe('getVideos', () => {
+    it('should call the apiCaller', () => {
+      videoModel.getVideos({})
+      assert.notStrictEqual(apiCall.length, 0)
+    })
+    it('should give a success callback to the apiCaller', () => {
+      videoModel.getVideos({})
+      assert.equal(typeof apiCall[0]['success'], 'function')
+    })
+    it('should give a timeout callback to the apiCaller', () => {
+      videoModel.getVideos({})
+      assert.equal(typeof apiCall[0]['timeout'], 'function')
+    })
+  })
   describe('provideVideos', () => {
     it('should call normalizeVideos', () => {
       videoModel.normalizeVideos = function (json) {

@@ -53,23 +53,12 @@ describe('VideoListController', () => {
     })
   })
   describe('handleApiResponse', () => {
-    let subscribedEvents
-
-    beforeEach(() => {
-      subscribedEvents = []
-      videoListController = new VideoListController({}, view, getControllerOptionsMock(subscribedEvents), dom.createFakeDocument(), dom.createFakeWindow())
-    })
-
     it('should call the view s renderList method', () => {
       let viewMock = sinon.mock(view)
       viewMock.expects('renderList').once()
       videoListController.handleApiResponse({})
       viewMock.verify()
     })
-    // it('should attach add-to-list event listeners', () => {
-    //   videoListController.handleApiResponse({})
-    //   assert.equal(2, subscribedEvents.length)
-    // })
   })
 
   describe('handleFilterFormChange', () => {
