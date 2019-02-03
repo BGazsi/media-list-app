@@ -17,7 +17,7 @@ ready (() => {
   let videoList = document.querySelector('[data-ref~="video-list"]')
   let model = new VideoModel(createJsonPClosure(), {
     storage: window.localStorage,
-    placeholderPicture: 'http://placehold.it/300x300',
+    placeholderPicture: 'http://placekitten.com/32/32',
     elements: {
       videoList: videoList
     }

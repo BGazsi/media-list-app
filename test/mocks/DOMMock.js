@@ -1,4 +1,5 @@
 export default function DOMMock () {
+  this.areInputsValid = true
   this.createFakeDomElement = (options) => {
     return {
       addEventListener: (eventName) => {
@@ -7,11 +8,26 @@ export default function DOMMock () {
         }
         options.eventStore.push(eventName)
       },
-      value: options ? options.value : undefined
+      value: options ? options.value : undefined,
+      dispatchEvent: (event) => {
+      },
+      closest: () => {
+        return this.createFakeDomElement()
+      },
+      getAttribute: () => {
+        return 'fakeAttributeValue'
+      },
+      checkValidity: () => {
+        return this.areInputsValid
+      },
+      reportValidity: () => {
+
+      }
     }
   }
 
-  this.createFakeDocument = () => {
+  this.createFakeDocument = (areInputsValid) => {
+    this.areInputsValid = !!areInputsValid
     return {
       querySelector: (selector) => {
         return this.createFakeDomElement()
@@ -26,6 +42,12 @@ export default function DOMMock () {
     return {
       clearTimeout: () => {
       }
+    }
+  }
+
+  this.createEvent = () => {
+    return {
+      target: this.createFakeDomElement()
     }
   }
 }

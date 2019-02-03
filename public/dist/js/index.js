@@ -34,7 +34,7 @@
     var videoList = document.querySelector('[data-ref~="video-list"]');
     var model = new _VideoModel.default(createJsonPClosure(), {
       storage: window.localStorage,
-      placeholderPicture: 'http://placehold.it/300x300',
+      placeholderPicture: 'http://placekitten.com/32/32',
       elements: {
         videoList: videoList
       }

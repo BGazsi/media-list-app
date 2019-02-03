@@ -1,4 +1,4 @@
-export default function VideoModel (apiCaller, options, doc) {
+export default function VideoModel (apiCaller, options, doc, custEv) {
   this.videoList = options.elements.videoList
   this.storage = options.storage
   this.videos = []
@@ -7,6 +7,7 @@ export default function VideoModel (apiCaller, options, doc) {
   this.apiCaller = apiCaller
   this.storage.setItem('video-list', this.storage.getItem('video-list') || JSON.stringify([]))
   doc = doc || document
+  custEv = custEv || CustomEvent
 
   this.getVideos = (query) => {
     this.apiCaller(query,
@@ -24,7 +25,7 @@ export default function VideoModel (apiCaller, options, doc) {
 
   this.provideVideos = (query, json = this.videos) => {
     this.videos = this.normalizeVideos(json)
-    this.videoList.dispatchEvent(new CustomEvent('apiResponseArrived', {detail: this.handleRequestReady(query)}))
+    this.videoList.dispatchEvent(new custEv('apiResponseArrived', {detail: this.handleRequestReady(query)}))
   }
 
   this.handleRequestReady = (query) => {

@@ -18,7 +18,7 @@
   });
   _exports.default = VideoModel;
 
-  function VideoModel(apiCaller, options, doc) {
+  function VideoModel(apiCaller, options, doc, custEv) {
     var _this = this;
 
     this.videoList = options.elements.videoList;
@@ -29,6 +29,7 @@
     this.apiCaller = apiCaller;
     this.storage.setItem('video-list', this.storage.getItem('video-list') || JSON.stringify([]));
     doc = doc || document;
+    custEv = custEv || CustomEvent;
 
     this.getVideos = function (query) {
       _this.apiCaller(query, function (json) {
@@ -45,7 +46,7 @@
       var json = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _this.videos;
       _this.videos = _this.normalizeVideos(json);
 
-      _this.videoList.dispatchEvent(new CustomEvent('apiResponseArrived', {
+      _this.videoList.dispatchEvent(new custEv('apiResponseArrived', {
         detail: _this.handleRequestReady(query)
       }));
     };

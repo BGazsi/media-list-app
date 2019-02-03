@@ -13,13 +13,13 @@ export default function getControllerMockOptions (eventStore) {
     },
     storage: {
       items: {},
-      getItem: (key) => {
+      getItem: function (key) {
         return this.items[key]
       },
-      setItem: (key, value) => {
+      setItem: function (key, value) {
         this.items[key] = value
       },
-      removeItem: (key) => {
+      removeItem: function (key) {
         delete this.items[key]
       }
     },

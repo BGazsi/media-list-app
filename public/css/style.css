@@ -96,12 +96,12 @@ body {
 .video-card {
   display: flex;
   flex-direction: column;
-  padding: 0 15px 20px 15px;
+  padding: 20px 15px;
   margin: 10px 10px 30px 10px;
   will-change: box-shadow;
   box-shadow: 2px 4px 6px 2px rgba(0,0,0,0.1);
   transition: box-shadow .2s linear;
-  flex-basis: 20%;
+  flex-basis: 19%;
   background: #fefefe;
 }
 
@@ -115,14 +115,8 @@ body {
 }
 
 .img-container {
-  margin-left: -15px;
-  margin-right: -15px;
   position: relative;
   text-align: center;
-}
-
-.thumb-img {
-  width: 100%;
 }
 
 .live {
